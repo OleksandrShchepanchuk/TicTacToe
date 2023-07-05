@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:Snake"
+        xmlns:local="clr-namespace:TicTacToe"
         mc:Ignorable="d"
         Title="TicTacToe" Height="450" Width="800"
         FontFamily = "Segoe UI Light"
@@ -30,21 +30,19 @@
                 </Image>
             </StackPanel>
             <Canvas x:Name="GameCanvas"
-                    
+                    Visibility="Hidden"
                     Grid.Row="1"
                     Width="300"
                     Height="300"
                     Margin="20">
-                    <UniformGrid x:Name="GameGrid"
-                                 Width="300"
-                                 Height="300"
-                                 Rows="3"
-                                 Columns="3"
-                                 MouseDown="GameGrid_OnMouseDown">
-                        <UniformGrid.Background>
-                            <ImageBrush ImageSource="assets/Grid.png"></ImageBrush>
-                        </UniformGrid.Background>
-                                
+                
+                <UniformGrid x:Name="GameGrid"
+                             Width="300"
+                             Height="300"
+                             Rows="3"
+                             Columns="3"
+                             MouseDown="GameGrid_OnMouseDown">
+
                     </UniformGrid>
                 <Line x:Name="Line"
                       Stroke="{StaticResource LineColor}"
@@ -80,16 +78,34 @@
                 </StackPanel>
             </Grid>
             <Grid x:Name="SettingsScreen"
+                  
                   Grid.RowSpan="2"
                   Background="{StaticResource BackgroundColor}"
-                  VerticalAlignment="Center"
-                  HorizontalAlignment="Center"
-                  Width="800"
-                  Height="450"
                   Visibility="Visible">
-                <StackPanel VerticalAlignment="Center" Orientation="Vertical">
-                    <TextBlock Text="Type size of the board" FontSize="34"  HorizontalAlignment="Center"/>
-                    <TextBox x:Name="Size" Background="White" Width="200"></TextBox>
+                <StackPanel Orientation="Vertical"
+                            VerticalAlignment="Center">
+                    <StackPanel Orientation="Horizontal"
+                                HorizontalAlignment="Center">
+                        <TextBlock x:Name="SettingsText"
+                                   FontSize="35"
+                                   Text="Choose size and number for win: "
+                                   Margin="0,0,0,15">
+                        </TextBlock>
+                        <TextBox x:Name="SizeText"
+                        Width="30"
+                        Height="30"
+                        VerticalAlignment="Center"
+                        Margin="10,0,0,10">
+                        
+                        </TextBox>
+                        <TextBox x:Name="ToWinText"
+                                 Width="30"
+                                 Height="30"
+                                 VerticalAlignment="Center"
+                                 Margin="10,0,0,10">
+                        
+                        </TextBox>
+                    </StackPanel>
                     <Button Content="Play"
                             Background="{StaticResource BackgroundColor}"
                             FontSize="34"
@@ -97,11 +113,11 @@
                             Margin="0,20,0,0"
                             Padding="0,0,0,5"
                             BorderBrush="Black"
-                            Click="Play_OnClick"></Button>
+                            Click="OnPlayClick"></Button>
                 </StackPanel>
             </Grid>
-            
         </Grid>
+
         
     </Viewbox>
 </Window>

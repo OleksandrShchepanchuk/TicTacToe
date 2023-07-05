@@ -1,13 +1,15 @@
 ﻿using System;
+using System.Drawing;
 
 namespace TicTacToe;
 
 public class GameState
 {
-    public Player[,] GameGrid { get; private set; }
+    public Player[,] GameGrid { get;  set; }
     public Player CurrentPlayer { get; private set; }
     public int TurnsPassed { get; private set; }
     public bool GameOver { get; private set; }
+    public int ToWin { get; set; }
 
     
     public event Action<int, int> MoveMade;
@@ -21,12 +23,13 @@ public class GameState
         TurnsPassed = 0;
         GameOver = false;
     }
-    public GameState(int size)
+    public GameState(int size, int m)
     {
         GameGrid = new Player[size, size];
         CurrentPlayer = Player.X;
         TurnsPassed = 0;
         GameOver = false;
+        ToWin = m;
     }
 
     private bool CanMakeMove(int r, int c)
@@ -59,33 +62,139 @@ public class GameState
 
     private bool DidMoveWin(int r, int c, out WinInfo winInfo)
     {
-        (int, int)[] row = new[] { (r, 0), (r, 1), (r, 2) };
-        (int, int)[] col = new[] { (0, c), (1, c), (2, c) };
-        (int, int)[] mainDiag = new[] { (0, 0), (1, 1), (2, 2) };
-        (int, int)[] antiDiag = new[] { (0, 2), (1, 1), (2, 0) };
-        if (AreSquaresMarked(row, CurrentPlayer))
-        {
-            winInfo = new WinInfo { Type = WinType.Row, Number = r };
-            return true;
-        }
-        if (AreSquaresMarked(col, CurrentPlayer))
-        {
-            winInfo = new WinInfo { Type = WinType.Column, Number = c };
-            return true;
-        }
-        if (AreSquaresMarked(mainDiag, CurrentPlayer))
-        {
-            winInfo = new WinInfo { Type = WinType.MainDiagonal };
-            return true;
-        }
-        if (AreSquaresMarked(antiDiag, CurrentPlayer))
-        {
-            winInfo = new WinInfo { Type = WinType.AntiDiagonal };
-            return true;
-        }
 
-        winInfo = null;
-        return false;
+        var Size = GameGrid.GetLength(0);
+        for (int i = 0; i < Size; i++)
+            {
+                var count = 1;
+                for (int j = 0; j < Size-1; j++)
+                {
+                    if (GameGrid[i, j] == GameGrid[i, j + 1] && GameGrid[i,j] != Player.None)
+                    {
+                        count++;
+
+                        if (count == ToWin)
+                        {
+                            winInfo = new WinInfo { point1 = (j-ToWin+2, i), point2 = (j+2, i), Type = WinType.Row };
+                            return true;
+                        }
+                    }
+                    else
+                    {
+                        count = 1;
+                    }
+                }
+            }
+            for (int j = 0; j < Size; j++)
+            {
+                var count = 1;
+                for (int i = 0; i < Size-1; i++)
+                {
+                    if (GameGrid[i, j] == GameGrid[i+1, j] && GameGrid[i,j] != Player.None)
+                    {
+                        count++;
+                        if (count == ToWin)
+                        {
+                            winInfo = new WinInfo() { point1 = (j,i -ToWin + 2), point2 = (j,i+2),Type = WinType.Column};
+                            return true;
+                        }
+                    }
+                    else
+                    {
+                        count = 1;
+                    }
+                }
+            }
+
+            var count1 = 1;
+            for (int i = 0; i < Size-1; i++)
+            {
+                {
+                    if (GameGrid[i, i] == GameGrid[i+1, i + 1] && GameGrid[i,i] != Player.None)
+                    {
+                        count1++;
+                        if (count1 == ToWin)
+                        {
+                            winInfo = new WinInfo() { point1 = (i - ToWin + 2, i - ToWin + 2 ), point2 = (i + 2, i + 2),Type = WinType.MainDiagonal };
+                            return true;
+                        }
+                    }
+                    else
+                    {
+                        count1 = 1;
+                    }
+                }
+            }
+            // antidiagonal
+            count1 = 1;
+            for (int i = 0; i < Size-1; i++)
+            {
+                {
+                    if (GameGrid[i, Size - i - 1] == GameGrid[i+1, Size - i - 1 - 1] && GameGrid[i, Size - i - 1] != Player.None)
+                    { 
+                        count1++;
+                        
+                        if (count1 == ToWin)
+                        {
+                            winInfo = new WinInfo() { point1 = (  Size - i+ToWin-2,i-ToWin+2), point2 = (  Size - i-2,i+2),Type = WinType.AntiDiagonal };
+                            return true;
+                        }
+                    }
+                    else
+                    {
+                        count1 = 1;
+                    }
+                }
+            }
+            //
+            
+            // check diagonals
+            for (int i = 0; i <= Size - ToWin; i++) // iterate over rows that can form diagonal of length m
+            {
+                for (int j = 0; j <= Size - ToWin; j++) // iterate over columns that can form diagonal of length m
+                {
+                    count1 = 1;
+                    for (int k = 1; k < ToWin; k++)
+                    {
+                        if (GameGrid[i, j] == GameGrid[i+k, j+k] && GameGrid[i,j] != Player.None)
+                        {
+                            count1++;
+                            if (count1 == ToWin)
+                            {
+                                winInfo = new WinInfo() { point1 = (j-ToWin+1+k, i-ToWin+1+k), point2 = (j+k+1,i+k+1),Type = WinType.MainDiagonal};
+                                return true;
+                            }
+                        }
+                        else
+                        {
+                            count1 = 1;
+                        }
+                    }
+                    count1 = 1;
+                    for (int k = 1; k < ToWin; k++)
+                    {
+                        if (GameGrid[i, j+ToWin-1] == GameGrid[i+k, j+ToWin-1-k] && GameGrid[i,j+ToWin-1] != Player.None)
+                        {
+                            count1++;
+                            if (count1 == ToWin)
+                            {
+                                winInfo = new WinInfo() { point1 = (j+ToWin, i), point2 = (j+ToWin-k-1,i+k+1),Type = WinType.AntiDiagonal };
+                                // winInfo = new WinInfo() { point1 = (Size - i+ToWin-2,i-ToWin+2), point2 = (  Size - i-2,i+2),Type = WinType.AntiDiagonal };
+
+                                return true;
+                            }
+                        }
+                        else
+                        {
+                            count1 = 1;
+                        }
+                    }
+                    
+                }
+            }
+
+            winInfo = null;
+            return false;
     }
 
     private bool DidMoveEndGame(int r, int c, out GameResult gameResult)
@@ -131,7 +240,7 @@ public class GameState
     }
     public void Reset()
         {
-            GameGrid = new Player[3, 3];
+            GameGrid = new Player[GameGrid.GetLength(0), GameGrid.GetLength(0)];
             CurrentPlayer = Player.X;
             TurnsPassed = 0;
             GameOver = false;
